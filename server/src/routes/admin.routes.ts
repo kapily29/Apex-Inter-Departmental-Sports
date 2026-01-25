@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  adminSignup,
   adminLogin,
   getAdminProfile,
   updateAdminProfile,
@@ -9,7 +8,7 @@ import { authMiddleware } from "../middlewares/auth";
 
 const router = Router();
 
-router.post("/signup", adminSignup);
+// Admin routes - signup removed for security (admin already created)
 router.post("/login", adminLogin);
 router.get("/profile", authMiddleware, getAdminProfile);
 router.put("/profile/update", authMiddleware, updateAdminProfile);

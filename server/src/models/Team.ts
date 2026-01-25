@@ -28,6 +28,7 @@ const teamSchema = new mongoose.Schema(
       required: true,
       enum: [
         "",
+        "Computer Science",
         "Information Technology",
         "Electronics",
         "Mechanical",

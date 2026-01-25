@@ -1,5 +1,7 @@
 // API configuration for flexible deployment
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+// Remove trailing slash if present
+const API_BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
 
 export default API_BASE_URL;
 

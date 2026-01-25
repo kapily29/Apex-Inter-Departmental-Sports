@@ -22,6 +22,8 @@ interface Match {
   teamA: { name: string };
   teamB: { name: string };
   status: string;
+  scoreA?: number;
+  scoreB?: number;
 }
 
 export default function AdminPage() {

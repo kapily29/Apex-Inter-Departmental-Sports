@@ -25,13 +25,21 @@ app.use(
 // Handle preflight requests
 app.options("*", cors());
 
-// Routes
+// Routes with /api prefix
 app.use("/api/admin", adminRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/players", playerRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/gallery", galleryRoutes);
+
+// Routes without /api prefix (fallback)
+app.use("/admin", adminRoutes);
+app.use("/teams", teamRoutes);
+app.use("/matches", matchRoutes);
+app.use("/players", playerRoutes);
+app.use("/announcements", announcementRoutes);
+app.use("/gallery", galleryRoutes);
 
 // Root route
 app.get("/", (_req, res) => {

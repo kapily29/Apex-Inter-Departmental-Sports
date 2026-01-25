@@ -6,6 +6,7 @@ import adminRoutes from "../src/routes/admin.routes";
 import teamRoutes from "../src/routes/team.routes";
 import matchRoutes from "../src/routes/match.routes";
 import playerRoutes from "../src/routes/player.routes";
+import playerAuthRoutes from "../src/routes/playerAuth.routes";
 import announcementRoutes from "../src/routes/announcement.routes";
 import galleryRoutes from "../src/routes/gallery.routes";
 
@@ -42,6 +43,7 @@ app.use("/admin", dbMiddleware, adminRoutes);
 app.use("/teams", dbMiddleware, teamRoutes);
 app.use("/matches", dbMiddleware, matchRoutes);
 app.use("/players", dbMiddleware, playerRoutes);
+app.use("/player-auth", dbMiddleware, playerAuthRoutes);
 app.use("/announcements", dbMiddleware, announcementRoutes);
 app.use("/gallery", dbMiddleware, galleryRoutes);
 

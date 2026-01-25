@@ -37,6 +37,10 @@ export default function AddPlayerModal({
 
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
+    rNumber: "",
+    phone: "",
+    password: "",
     team: "",
     department: "",
     position: "",
@@ -79,9 +83,15 @@ export default function AddPlayerModal({
       await axios.post(
         API_ENDPOINTS.PLAYERS_CREATE,
         {
-          ...formData,
-          number: parseInt(formData.number),
-          team: formData.team,
+          name: formData.name,
+          email: formData.email || undefined,
+          rNumber: formData.rNumber || undefined,
+          phone: formData.phone || undefined,
+          password: formData.password || undefined,
+          team: formData.team || undefined,
+          department: formData.department,
+          position: formData.position || undefined,
+          number: formData.number ? parseInt(formData.number) : undefined,
         },
         {
           headers: {
@@ -93,6 +103,10 @@ export default function AddPlayerModal({
 
       setFormData({
         name: "",
+        email: "",
+        rNumber: "",
+        phone: "",
+        password: "",
         team: "",
         department: "",
         position: "",
@@ -132,8 +146,8 @@ export default function AddPlayerModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Player Name
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Player Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -147,17 +161,72 @@ export default function AddPlayerModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="player@email.com"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              R-Number
+            </label>
+            <input
+              type="text"
+              name="rNumber"
+              value={formData.rNumber}
+              onChange={handleChange}
+              placeholder="e.g., R12345678"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password (for player login)
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Set a password"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Team
             </label>
             <select
               name="team"
               value={formData.team}
               onChange={handleChange}
-              required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select Team</option>
+              <option value="">No Team (assign later)</option>
               {teams.map((team) => (
                 <option key={team._id} value={team._id}>
                   {team.name}
@@ -168,7 +237,7 @@ export default function AddPlayerModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Department
+              Department <span className="text-red-500">*</span>
             </label>
             <select
               name="department"
@@ -188,7 +257,7 @@ export default function AddPlayerModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Position
               </label>
               <input
@@ -197,14 +266,13 @@ export default function AddPlayerModal({
                 value={formData.position}
                 onChange={handleChange}
                 placeholder="e.g., Forward"
-                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Jersey Number
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Jersey #
               </label>
               <input
                 type="number"
@@ -212,12 +280,16 @@ export default function AddPlayerModal({
                 value={formData.number}
                 onChange={handleChange}
                 placeholder="0"
-                required
                 min="0"
                 max="99"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+            <p className="font-medium">💡 Note:</p>
+            <p>A unique Player ID will be auto-generated. Players added by admin are auto-approved.</p>
           </div>
 
           <div className="flex gap-3 pt-4">

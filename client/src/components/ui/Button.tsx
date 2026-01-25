@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type ButtonVariant = "primary" | "danger" | "warning";
+type ButtonVariant = "primary" | "secondary" | "danger" | "warning";
 
 type ButtonProps = {
   children: React.ReactNode;
@@ -26,6 +26,7 @@ export default function Button({
 
   const variants: Record<ButtonVariant, string> = {
     primary: "bg-blue-700 text-white hover:bg-blue-800",
+    secondary: "bg-emerald-600 text-white hover:bg-emerald-700",
     danger: "bg-red-700 text-white hover:bg-red-800",
     warning: "bg-yellow-500 text-slate-900 hover:bg-yellow-400",
   };

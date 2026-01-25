@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import { AdminProvider } from "./context/AdminContext";
+import { PlayerProvider } from "./context/PlayerContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import "./index.css";
 
@@ -11,9 +12,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <AdminProvider>
-        <NotificationProvider>
-          <App />
-        </NotificationProvider>
+        <PlayerProvider>
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
+        </PlayerProvider>
       </AdminProvider>
     </BrowserRouter>
   </React.StrictMode>

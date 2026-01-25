@@ -8,7 +8,12 @@ import GalleryPage from "../pages/GalleryPage";
 import AdminPage from "../pages/AdminPage";
 import TeamsPage from "../pages/TeamsPage";
 import AdminLoginPage from "../pages/AdminLoginPage";
+import PlayerRegisterPage from "../pages/PlayerRegisterPage";
+import PlayerLoginPage from "../pages/PlayerLoginPage";
+import PlayerDashboardPage from "../pages/PlayerDashboardPage";
+import PlayerVerifyPage from "../pages/PlayerVerifyPage";
 import ProtectedRoute from "./ProtectedRoute";
+import PlayerProtectedRoute from "./PlayerProtectedRoute";
 
 export default function AppRoutes() {
   return (
@@ -20,6 +25,19 @@ export default function AppRoutes() {
       <Route path="/live" element={<LiveScorePage />} />
       <Route path="/gallery" element={<GalleryPage />} />
       <Route path="/teams" element={<TeamsPage />} />
+
+      {/* Player Routes */}
+      <Route path="/player-register" element={<PlayerRegisterPage />} />
+      <Route path="/player-login" element={<PlayerLoginPage />} />
+      <Route path="/player-verify" element={<PlayerVerifyPage />} />
+      <Route
+        path="/player-dashboard"
+        element={
+          <PlayerProtectedRoute>
+            <PlayerDashboardPage />
+          </PlayerProtectedRoute>
+        }
+      />
 
       {/* Admin Routes */}
       <Route path="/admin-login" element={<AdminLoginPage />} />

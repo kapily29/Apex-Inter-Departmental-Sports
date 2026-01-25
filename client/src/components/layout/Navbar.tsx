@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import Button from "../ui/Button";
 import { useAdmin } from "../../context/AdminContext";
+import { usePlayer } from "../../context/PlayerContext";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `hover:text-slate-900 ${
@@ -10,7 +11,8 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 export default function Navbar() {
-  const { isAuthenticated, logout, admin } = useAdmin();
+  const { isAuthenticated: isAdminAuth, logout: adminLogout, admin } = useAdmin();
+  const { isAuthenticated: isPlayerAuth, logout: playerLogout, player } = usePlayer();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -61,22 +63,40 @@ export default function Navbar() {
               Gallery
             </NavLink>
 
-            {isAuthenticated && (
+            {isAdminAuth && (
               <NavLink className={navClass} to="/admin">
                 Admin
+              </NavLink>
+            )}
+
+            {isPlayerAuth && (
+              <NavLink className={navClass} to="/player-dashboard">
+                My Dashboard
               </NavLink>
             )}
           </nav>
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {isAuthenticated ? (
+            {isAdminAuth ? (
               <div className="hidden sm:flex items-center gap-3">
                 <span className="text-sm font-semibold text-slate-700">
                   {admin?.username || "Admin"}
                 </span>
                 <button
-                  onClick={logout}
+                  onClick={adminLogout}
+                  className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-700 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : isPlayerAuth ? (
+              <div className="hidden sm:flex items-center gap-3">
+                <span className="text-sm font-semibold text-emerald-700">
+                  ⚽ {player?.name}
+                </span>
+                <button
+                  onClick={playerLogout}
                   className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-700 transition-colors"
                 >
                   Logout
@@ -85,10 +105,27 @@ export default function Navbar() {
             ) : (
               <div className="hidden sm:flex items-center gap-2 sm:gap-3">
                 <Button
-                  to="/admin-login"
+                  to="/player-register"
+                  fullWidth={false}
+                  variant="secondary"
+                  className="text-xs sm:text-sm px-3 sm:px-4"
+                >
+                  Register
+                </Button>
+
+                <Button
+                  to="/player-login"
                   fullWidth={false}
                   variant="primary"
                   className="text-xs sm:text-sm px-3 sm:px-4"
+                >
+                  Player Login
+                </Button>
+
+                <Button
+                  to="/admin-login"
+                  fullWidth={false}
+                  className="text-xs sm:text-sm px-3 sm:px-4 bg-slate-700 hover:bg-slate-800 text-white"
                 >
                   Admin Login
                 </Button>
@@ -168,7 +205,7 @@ export default function Navbar() {
               📸 Gallery
             </NavLink>
 
-            {isAuthenticated && (
+            {isAdminAuth && (
               <NavLink 
                 className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
                 to="/admin"
@@ -178,26 +215,60 @@ export default function Navbar() {
               </NavLink>
             )}
 
+            {isPlayerAuth && (
+              <NavLink 
+                className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-700 hover:bg-slate-50"}`}
+                to="/player-dashboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                ⚽ My Dashboard
+              </NavLink>
+            )}
+
             <div className="border-t my-2"></div>
 
-            {isAuthenticated ? (
+            {isAdminAuth ? (
               <button
                 onClick={() => {
-                  logout();
+                  adminLogout();
                   setIsMobileMenuOpen(false);
                 }}
                 className="px-4 py-3 bg-red-600 text-white rounded-lg font-semibold text-center"
               >
                 Logout ({admin?.username})
               </button>
+            ) : isPlayerAuth ? (
+              <button
+                onClick={() => {
+                  playerLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="px-4 py-3 bg-red-600 text-white rounded-lg font-semibold text-center"
+              >
+                Logout ({player?.name})
+              </button>
             ) : (
               <div className="flex flex-col gap-2">
+                <NavLink
+                  to="/player-register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-4 py-3 bg-emerald-600 text-white rounded-lg font-semibold text-center"
+                >
+                  ⚽ Player Register
+                </NavLink>
+                <NavLink
+                  to="/player-login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-4 py-3 bg-teal-600 text-white rounded-lg font-semibold text-center"
+                >
+                  ⚽ Player Login
+                </NavLink>
                 <NavLink
                   to="/admin-login"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold text-center"
                 >
-                  Admin Login
+                  🔐 Admin Login
                 </NavLink>
                 <NavLink
                   to="/live"

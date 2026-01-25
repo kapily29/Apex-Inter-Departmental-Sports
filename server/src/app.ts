@@ -4,6 +4,7 @@ import adminRoutes from "./routes/admin.routes";
 import teamRoutes from "./routes/team.routes";
 import matchRoutes from "./routes/match.routes";
 import playerRoutes from "./routes/player.routes";
+import playerAuthRoutes from "./routes/playerAuth.routes";
 import announcementRoutes from "./routes/announcement.routes";
 import galleryRoutes from "./routes/gallery.routes";
 
@@ -20,6 +21,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/players", playerRoutes);
+app.use("/api/player-auth", playerAuthRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/gallery", galleryRoutes);
 

@@ -48,4 +48,11 @@ export const API_ENDPOINTS = {
   GALLERY_CREATE: `${API_BASE_URL}/gallery`,
   GALLERY_UPDATE: (id: string) => `${API_BASE_URL}/gallery/${id}`,
   GALLERY_DELETE: (id: string) => `${API_BASE_URL}/gallery/${id}`,
+
+  // Player Auth
+  PLAYER_REGISTER: `${API_BASE_URL}/player-auth/register`,
+  PLAYER_LOGIN: `${API_BASE_URL}/player-auth/login`,
+  PLAYER_VERIFY: `${API_BASE_URL}/player-auth/verify`,
+  PLAYER_PROFILE: `${API_BASE_URL}/player-auth/profile`,
+  PLAYER_UPDATE_PROFILE: `${API_BASE_URL}/player-auth/profile`,
 };

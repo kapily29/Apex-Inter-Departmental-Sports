@@ -6,6 +6,7 @@ import ManageMatches from "../components/admin/ManageMatches";
 import ManagePlayers from "../components/admin/ManagePlayers";
 import ManageTeams from "../components/admin/ManageTeams";
 import ManageGallery from "../components/admin/ManageGallery";
+import PlayerApprovals from "../components/admin/PlayerApprovals";
 import AdminAnnouncements from "../components/admin/AdminAnnouncements";
 import AdminProfile from "../components/admin/AdminProfile";
 import AddMatchModal from "../components/admin/AddMatchModal";
@@ -193,6 +194,16 @@ export default function AdminPage() {
               👤 Players
             </button>
             <button
+              onClick={() => setCurrentView("approvals")}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
+                currentView === "approvals"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+              }`}
+            >
+              ✅ Approvals
+            </button>
+            <button
               onClick={() => setCurrentView("announcements")}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
                 currentView === "announcements"
@@ -339,6 +350,15 @@ export default function AdminPage() {
               </button>
             </div>
             <ManagePlayers refreshKey={refreshKey} />
+          </div>
+        )}
+
+        {currentView === "approvals" && (
+          <div className="px-4 sm:px-8 py-4 sm:py-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Player Approvals & Verification</h2>
+            </div>
+            <PlayerApprovals refreshKey={refreshKey} />
           </div>
         )}
 

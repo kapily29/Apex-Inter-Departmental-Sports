@@ -7,6 +7,10 @@ import axios from "axios";
 interface Player {
   _id: string;
   name: string;
+  email?: string;
+  rNumber?: string;
+  uniqueId?: string;
+  phone?: string;
   team?: any;
   department?: string;
   position: string;
@@ -162,12 +166,28 @@ export default function ManagePlayers({ refreshKey }: ManagePlayersProps) {
     setEditError("");
 
     try {
+      const updateData: any = {
+        name: editFormData.name,
+        department: editFormData.department,
+        position: editFormData.position,
+        status: editFormData.status,
+      };
+      
+      // Only include team if it's a valid value
+      if (editFormData.team && editFormData.team.trim() !== "") {
+        updateData.team = editFormData.team;
+      } else {
+        updateData.team = null;
+      }
+      
+      // Only include number if it's valid
+      if (editFormData.number && editFormData.number.trim() !== "") {
+        updateData.number = parseInt(editFormData.number);
+      }
+
       await axios.put(
         API_ENDPOINTS.PLAYERS_UPDATE(editingPlayer._id),
-        {
-          ...editFormData,
-          number: parseInt(editFormData.number),
-        },
+        updateData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -253,9 +273,35 @@ export default function ManagePlayers({ refreshKey }: ManagePlayersProps) {
                 {player.status.charAt(0).toUpperCase() + player.status.slice(1)}
               </span>
             </div>
-            <div className="text-xs text-slate-500 space-y-1 mb-3">
-              <div>🏃 {player.team?.name || "No team"} • {player.position} #{player.number}</div>
-              <div>📚 {player.department || "No department"}</div>
+            <div className="text-xs text-slate-600 space-y-1.5 mb-3 bg-slate-50 p-3 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">🎫 Unique ID:</span>
+                <span className="font-mono font-semibold text-emerald-700">{player.uniqueId || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">📋 R-Number:</span>
+                <span className="font-mono">{player.rNumber || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">📧 Email:</span>
+                <span>{player.email || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">📱 Phone:</span>
+                <span>{player.phone || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">📚 Dept:</span>
+                <span>{player.department || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">🛡️ Team:</span>
+                <span>{player.team?.name || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">🏃 Position:</span>
+                <span>{player.position || "-"} {player.number ? `#${player.number}` : ""}</span>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {player.status.toLowerCase() === "pending" && (
@@ -296,32 +342,43 @@ export default function ManagePlayers({ refreshKey }: ManagePlayersProps) {
         <table className="w-full">
           <thead className="bg-blue-900 text-white">
             <tr>
-              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Name</th>
-              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Team</th>
-              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Department</th>
-              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">
-                Position
-              </th>
-              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Status</th>
-              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Actions</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Name / Email</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">R-Number</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Unique ID</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Phone</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Department</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Team</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Position</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Status</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {filteredPlayers.map((player) => (
               <tr key={player._id} className="hover:bg-slate-50">
-                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-900 font-medium">
-                  {player.name}
+                <td className="px-3 py-3 text-xs text-slate-900">
+                  <div className="font-semibold">{player.name}</div>
+                  {player.email && <div className="text-xs text-slate-400">{player.email}</div>}
                 </td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">
-                  {player.team?.name || "-"}
+                <td className="px-3 py-3 text-xs text-slate-700 font-mono">
+                  {player.rNumber || "-"}
                 </td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">
+                <td className="px-3 py-3 text-xs text-emerald-600 font-mono font-bold">
+                  {player.uniqueId || "-"}
+                </td>
+                <td className="px-3 py-3 text-xs text-slate-700">
+                  {player.phone || "-"}
+                </td>
+                <td className="px-3 py-3 text-xs text-slate-700">
                   {player.department || "-"}
                 </td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">
-                  {player.position} #{player.number}
+                <td className="px-3 py-3 text-xs text-slate-700">
+                  {player.team?.name || "-"}
                 </td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">
+                <td className="px-3 py-3 text-xs text-slate-700">
+                  {player.position || "-"} {player.number ? `#${player.number}` : ""}
+                </td>
+                <td className="px-3 py-3 text-xs">
                   <span
                     className={`px-2 py-1 rounded text-white text-xs font-semibold ${getStatusColor(
                       player.status
@@ -331,7 +388,8 @@ export default function ManagePlayers({ refreshKey }: ManagePlayersProps) {
                       player.status.slice(1)}
                   </span>
                 </td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm flex items-center gap-1 sm:gap-2">
+                <td className="px-3 py-3 text-xs">
+                  <div className="flex items-center gap-1">
                   {player.status.toLowerCase() === "pending" && (
                     <>
                       <button
@@ -339,14 +397,14 @@ export default function ManagePlayers({ refreshKey }: ManagePlayersProps) {
                         className="text-green-600 hover:text-green-700 font-semibold text-xs"
                         title="Approve"
                       >
-                        Approve
+                        ✓
                       </button>
                       <button
                         onClick={() => handleReject(player._id)}
                         className="text-orange-600 hover:text-orange-700 font-semibold text-xs"
                         title="Reject"
                       >
-                        Reject
+                        ✕
                       </button>
                     </>
                   )}
@@ -355,15 +413,16 @@ export default function ManagePlayers({ refreshKey }: ManagePlayersProps) {
                     className="text-blue-600 hover:text-blue-700 font-semibold text-xs"
                     title="Edit"
                   >
-                    Edit
+                    ✏️
                   </button>
                   <button
                     onClick={() => handleDelete(player._id)}
                     className="text-red-600 hover:text-red-700 font-semibold text-xs"
                     title="Delete"
                   >
-                    Delete
+                    🗑️
                   </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -6,6 +6,28 @@ const playerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    rNumber: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    uniqueId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    phone: {
+      type: String,
+    },
     team: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Team",
@@ -25,6 +47,7 @@ const playerSchema = new mongoose.Schema(
         "MCA",
         "Other",
       ],
+      required: true,
     },
     position: String,
     number: Number,
@@ -35,7 +58,7 @@ const playerSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["active", "inactive", "pending", "approved"],
-      default: "active",
+      default: "pending",
     },
   },
   { timestamps: true }

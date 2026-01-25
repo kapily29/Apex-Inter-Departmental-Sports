@@ -53,14 +53,6 @@ export default function AdminLoginPage() {
           alt="Sports background"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-600/80 to-indigo-700/80" />
-        <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
-          <div className="text-7xl mb-6">🏆</div>
-          <h1 className="text-4xl font-bold mb-4 text-center">Apex Sports</h1>
-          <p className="text-lg text-white/90 text-center max-w-md">
-            Inter-Departmental Sports Management System
-          </p>
-        </div>
       </div>
 
       {/* Right Side - Login Form */}

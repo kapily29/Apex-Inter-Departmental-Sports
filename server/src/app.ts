@@ -12,18 +12,8 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// CORS configuration - Allow all origins for now
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
-// Handle preflight requests
-app.options("*", cors());
+// CORS configuration - Allow all origins
+app.use(cors());
 
 // Routes with /api prefix
 app.use("/api/admin", adminRoutes);

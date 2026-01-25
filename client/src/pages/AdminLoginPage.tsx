@@ -102,13 +102,7 @@ export default function AdminLoginPage() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-
-        {/* Helper Text */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg text-xs text-slate-600">
-          <p className="font-semibold text-blue-900 mb-2">Demo Credentials:</p>
-          <p>Username: <span className="font-mono">apexsprotsadmin</span></p>
-          <p>Password: <span className="font-mono">apexsprotsadmin@123</span></p>
-        </div>
+    
       </div>
     </div>
   );

@@ -1,0 +1,217 @@
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
+import logo from "../../assets/logo.png";
+import Button from "../ui/Button";
+import { useAdmin } from "../../context/AdminContext";
+
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  `hover:text-slate-900 ${
+    isActive ? "text-slate-900 font-extrabold" : "text-slate-700"
+  }`;
+
+export default function Navbar() {
+  const { isAuthenticated, logout, admin } = useAdmin();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  return (
+    <header className="bg-white shadow relative z-50">
+      <div className="mx-auto max-w-6xl px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo */}
+          <NavLink to="/" className="flex items-center gap-2 sm:gap-3">
+            {/* Logo Badge */}
+            <div className="h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 rounded-xl bg-white p-1.5 sm:p-2 shadow ring-1 ring-slate-200">
+              <img
+                src={logo}
+                alt="College Sports Logo"
+                className="h-full w-full object-contain"
+              />
+            </div>
+
+            {/* Text */}
+            <div className="leading-tight">
+              <div className="text-xs sm:text-sm font-semibold text-slate-500">
+                Apex University
+              </div>
+              <div className="text-lg sm:text-2xl font-extrabold tracking-wide text-slate-900">
+                SPORTS
+              </div>
+            </div>
+          </NavLink>
+
+          {/* Desktop Links */}
+          <nav className="hidden items-center gap-7 text-sm font-medium lg:flex">
+            <NavLink className={navClass} to="/">
+              Home
+            </NavLink>
+
+            <NavLink className={navClass} to="/scores">
+              Scores
+            </NavLink>
+
+            <NavLink className={navClass} to="/schedule">
+              Schedule
+            </NavLink>
+
+            <NavLink className={navClass} to="/teams">
+              Teams
+            </NavLink>
+
+            <NavLink className={navClass} to="/gallery">
+              Gallery
+            </NavLink>
+
+            {isAuthenticated && (
+              <NavLink className={navClass} to="/admin">
+                Admin
+              </NavLink>
+            )}
+          </nav>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {isAuthenticated ? (
+              <div className="hidden sm:flex items-center gap-3">
+                <span className="text-sm font-semibold text-slate-700">
+                  {admin?.username || "Admin"}
+                </span>
+                <button
+                  onClick={logout}
+                  className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-700 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+                <Button
+                  to="/admin-login"
+                  fullWidth={false}
+                  variant="primary"
+                  className="text-xs sm:text-sm px-3 sm:px-4"
+                >
+                  Admin Login
+                </Button>
+
+                <Button
+                  to="/live"
+                  fullWidth={false}
+                  variant="danger"
+                  className="inline-flex items-center gap-2 text-xs sm:text-sm px-3 sm:px-4"
+                >
+                  <span className="inline-block h-2 w-2 rounded-full bg-white" />
+                  Live
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t shadow-lg z-50">
+          <nav className="flex flex-col p-4 gap-2">
+            <NavLink 
+              className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+              to="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              🏠 Home
+            </NavLink>
+
+            <NavLink 
+              className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+              to="/scores"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              🏆 Scores
+            </NavLink>
+
+            <NavLink 
+              className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+              to="/schedule"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              📅 Schedule
+            </NavLink>
+
+            <NavLink 
+              className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+              to="/teams"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              🛡️ Teams
+            </NavLink>
+
+            <NavLink 
+              className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+              to="/gallery"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              📸 Gallery
+            </NavLink>
+
+            {isAuthenticated && (
+              <NavLink 
+                className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+                to="/admin"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                ⚙️ Admin
+              </NavLink>
+            )}
+
+            <div className="border-t my-2"></div>
+
+            {isAuthenticated ? (
+              <button
+                onClick={() => {
+                  logout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="px-4 py-3 bg-red-600 text-white rounded-lg font-semibold text-center"
+              >
+                Logout ({admin?.username})
+              </button>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <NavLink
+                  to="/admin-login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold text-center"
+                >
+                  Admin Login
+                </NavLink>
+                <NavLink
+                  to="/live"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-4 py-3 bg-red-600 text-white rounded-lg font-semibold text-center flex items-center justify-center gap-2"
+                >
+                  <span className="inline-block h-2 w-2 rounded-full bg-white animate-pulse" />
+                  Live Score
+                </NavLink>
+              </div>
+            )}
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+}

@@ -37,14 +37,12 @@ const dbMiddleware = async (_req: express.Request, _res: express.Response, next:
 app.get("/", (_req, res) => res.json({ message: "Apex Sports API", version: "1.0.0" }));
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-// API routes
-app.use("/api/admin", dbMiddleware, adminRoutes);
-app.use("/api/teams", dbMiddleware, teamRoutes);
-app.use("/api/matches", dbMiddleware, matchRoutes);
-app.use("/api/players", dbMiddleware, playerRoutes);
-app.use("/api/announcements", dbMiddleware, announcementRoutes);
-app.use("/api/gallery", dbMiddleware, galleryRoutes);
-
-export default app;
+// Routes
+app.use("/admin", dbMiddleware, adminRoutes);
+app.use("/teams", dbMiddleware, teamRoutes);
+app.use("/matches", dbMiddleware, matchRoutes);
+app.use("/players", dbMiddleware, playerRoutes);
+app.use("/announcements", dbMiddleware, announcementRoutes);
+app.use("/gallery", dbMiddleware, galleryRoutes);
 
 export default app;

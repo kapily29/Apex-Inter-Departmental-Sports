@@ -5,7 +5,6 @@ const teamSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     sport: {
       type: String,
@@ -20,27 +19,25 @@ const teamSchema = new mongoose.Schema(
         "Kho Kho",
         "Table Tennis",
         "Tug of War",
-        "Sack Race",
+        "Athletics (100 or 200 meter)",
+        "Cricket"
       ],
     },
     department: {
       type: String,
       required: true,
-      enum: [
-        "",
-        "Computer Science",
-        "Information Technology",
-        "Electronics",
-        "Mechanical",
-        "Civil",
-        "Electrical",
-        "Chemical",
-        "Biotechnology",
-        "MBA",
-        "MCA",
-        "Other",
-      ],
     },
+    captain: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Captain",
+      required: true,
+    },
+    players: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "DepartmentPlayer",
+      }
+    ],
     record: {
       type: String,
       default: "0-0",
@@ -54,7 +51,7 @@ const teamSchema = new mongoose.Schema(
       default: "N/A",
     },
     description: String,
-    coach: String,
+    // coach: String, // Removed coach, use captain only
     imageUrl: String,
   },
   { timestamps: true }

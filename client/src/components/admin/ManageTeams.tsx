@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAdmin } from "../../context/AdminContext";
 import { useNotification } from "../../context/NotificationContext";
 import { API_ENDPOINTS } from "../../config/api";
+
 import axios from "axios";
 
 interface Team {
@@ -10,8 +11,14 @@ interface Team {
   sport: string;
   department: string;
   coach: string;
+  captain: string;
   description: string;
   imageUrl: string;
+  players?: Array<{
+    _id: string;
+    name: string;
+    sport: string;
+  }>;
 }
 
 const SPORTS_OPTIONS = [
@@ -59,12 +66,13 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
     name: "",
     sport: "",
     department: "",
-    coach: "",
+    captain: "",
     description: "",
     imageUrl: "",
   });
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
+  const [viewPlayersTeam, setViewPlayersTeam] = useState<Team | null>(null);
 
   useEffect(() => {
     fetchTeams();
@@ -76,7 +84,20 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
       const response = await axios.get(API_ENDPOINTS.TEAMS_LIST, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTeams(response.data.teams || []);
+      // Fetch players for each team
+      const teamsWithPlayers = await Promise.all(
+        (response.data.teams || []).map(async (team: Team) => {
+          try {
+            const teamDetail = await axios.get(API_ENDPOINTS.TEAMS_BY_ID(team._id), {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            return { ...team, players: teamDetail.data.team.players || [] };
+          } catch {
+            return { ...team, players: [] };
+          }
+        })
+      );
+      setTeams(teamsWithPlayers);
     } catch (error) {
       console.error("Failed to fetch teams");
     } finally {
@@ -158,7 +179,7 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
     const sportMatch = selectedSport === "All" || team.sport === selectedSport;
     const searchMatch = searchQuery === "" || 
       team.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      team.coach?.toLowerCase().includes(searchQuery.toLowerCase());
+      team.captain?.toLowerCase().includes(searchQuery.toLowerCase());
     return sportMatch && searchMatch;
   });
 
@@ -172,7 +193,7 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
       <div className="border-b px-3 sm:px-6 py-3 sm:py-4 bg-slate-50 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-4">
         <input
           type="text"
-          placeholder="Search by name or coach..."
+          placeholder="Search by name or captain..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="px-3 sm:px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:min-w-[200px] sm:w-auto"
@@ -203,6 +224,7 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
             <div className="text-xs text-slate-500 space-y-1 mb-3">
               <div>📚 {team.department || "No department"}</div>
               <div>👤 {team.coach || "No coach"}</div>
+                          <div>🎖️ {team.captain || "No captain"}</div>
             </div>
             <div className="flex gap-2">
               <button
@@ -231,7 +253,9 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
               <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Sport</th>
               <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Department</th>
               <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Coach</th>
+                            <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Captain</th>
               <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Actions</th>
+              <th className="px-4 sm:px-6 py-3 text-left text-xs sm:text-sm font-semibold">Players</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -240,10 +264,19 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-900 font-medium">
                   {team.name}
                 </td>
+                <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">
+                  <button
+                    className="text-green-700 hover:text-green-900 font-semibold px-2 py-1 bg-green-50 rounded text-xs"
+                    onClick={() => setViewPlayersTeam(team)}
+                  >
+                    View Players
+                  </button>
+                </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">{team.sport}</td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">{team.department || "-"}</td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-slate-700">
                   {team.coach || "-"}
+                                  {team.captain || "-"}
                 </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm flex items-center gap-2">
                   <button
@@ -351,12 +384,12 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Coach
+                    Captain
                   </label>
                   <input
                     type="text"
-                    name="coach"
-                    value={editFormData.coach}
+                    name="captain"
+                    value={editFormData.captain}
                     onChange={handleEditChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -409,6 +442,37 @@ export default function ManageTeams({ refreshKey }: ManageTeamsProps) {
           </div>
         </div>
       )}
+    {/* View Players Modal */}
+    {viewPlayersTeam && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="p-4 sm:p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Team Players</h2>
+              <button
+                onClick={() => setViewPlayersTeam(null)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="mb-2 font-semibold text-blue-700">{viewPlayersTeam.name} ({viewPlayersTeam.sport})</div>
+            {viewPlayersTeam.players && viewPlayersTeam.players.length > 0 ? (
+              <ul className="divide-y">
+                {viewPlayersTeam.players.map((p) => (
+                  <li key={p._id} className="py-2">
+                    <span className="font-medium text-slate-800">{p.name}</span>
+                    <span className="ml-2 text-xs text-slate-500">({p.sport})</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-slate-500">No players in this team.</div>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }

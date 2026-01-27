@@ -14,12 +14,15 @@ export const API_ENDPOINTS = {
 
   // Admin - Captain Management
   ADMIN_CAPTAINS_LIST: `${API_BASE_URL}/admin/captains`,
+  ADMIN_CAPTAINS_CREATE: `${API_BASE_URL}/admin/captains`,
   ADMIN_CAPTAINS_UPDATE: (id: string) => `${API_BASE_URL}/admin/captains/${id}`,
   ADMIN_CAPTAINS_STATUS: (id: string) => `${API_BASE_URL}/admin/captains/${id}/status`,
   ADMIN_CAPTAINS_DELETE: (id: string) => `${API_BASE_URL}/admin/captains/${id}`,
 
+
   // Admin - Department Player Management
   ADMIN_DEPT_PLAYERS_LIST: `${API_BASE_URL}/admin/department-players`,
+  ADMIN_DEPT_PLAYERS_CREATE: `${API_BASE_URL}/admin/department-players`,
   ADMIN_DEPT_PLAYERS_UPDATE: (id: string) => `${API_BASE_URL}/admin/department-players/${id}`,
   ADMIN_DEPT_PLAYERS_STATUS: (id: string) => `${API_BASE_URL}/admin/department-players/${id}/status`,
   ADMIN_DEPT_PLAYERS_DELETE: (id: string) => `${API_BASE_URL}/admin/department-players/${id}`,
@@ -74,7 +77,7 @@ export const API_ENDPOINTS = {
   CAPTAIN_PROFILE: `${API_BASE_URL}/captain-auth/profile`,
   CAPTAIN_UPDATE_PROFILE: `${API_BASE_URL}/captain-auth/profile`,
   CAPTAIN_SPORTS_LIST: `${API_BASE_URL}/captain-auth/sports`,
-  
+
   // Captain - Department Players Management
   CAPTAIN_PLAYERS_LIST: `${API_BASE_URL}/captain-auth/players`,
   CAPTAIN_PLAYERS_ADD: `${API_BASE_URL}/captain-auth/players`,
@@ -94,4 +97,12 @@ export const API_ENDPOINTS = {
   RULES_CREATE: `${API_BASE_URL}/rules`,
   RULES_UPDATE: (id: string) => `${API_BASE_URL}/rules/${id}`,
   RULES_DELETE: (id: string) => `${API_BASE_URL}/rules/${id}`,
+
+  // Captain - Team Management
+  CAPTAIN_TEAMS_LIST: `${API_BASE_URL}/captain-auth/teams`,
+  CAPTAIN_CREATE_TEAM: `${API_BASE_URL}/captain-auth/teams`,
+  CAPTAIN_TEAMS_UPDATE: (id: string) => `${API_BASE_URL}/captain-auth/teams/${id}`,
+  CAPTAIN_TEAMS_DELETE: (id: string) => `${API_BASE_URL}/captain-auth/teams/${id}`,
+  CAPTAIN_TEAMS_ADD_MEMBERS: (id: string) =>
+    `${API_BASE_URL}/captain-auth/teams/${id}/add-members`,
 };

@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCaptain } from "../context/CaptainContext";
 import { API_ENDPOINTS } from "../config/api";
+import CaptainTeamManager from "../components/teams/CaptainTeamManager";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -347,7 +349,7 @@ export default function CaptainDashboardPage() {
   // Show loading while checking auth state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-indigo-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Loading...</p>
@@ -358,7 +360,7 @@ export default function CaptainDashboardPage() {
 
   if (!captain) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-indigo-50">
         <div className="text-center">
           <p className="text-slate-600 mb-4">Please login to access your dashboard</p>
           <Link
@@ -373,7 +375,7 @@ export default function CaptainDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-indigo-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -401,7 +403,7 @@ export default function CaptainDashboardPage() {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Welcome Card */}
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white mb-8">
+        <div className="bg-linear-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white mb-8">
           <h2 className="text-2xl font-bold mb-2">Hello, Captain {captain.name}! 👋</h2>
           <p className="text-indigo-100">
             {captain.status === "approved" || captain.status === "active"
@@ -409,6 +411,7 @@ export default function CaptainDashboardPage() {
               : "Your account is pending approval. Please wait for admin confirmation."}
           </p>
         </div>
+
 
         {/* Info Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -476,11 +479,10 @@ export default function CaptainDashboardPage() {
           <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div
-                className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                  captain.status === "approved" || captain.status === "active"
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${captain.status === "approved" || captain.status === "active"
                     ? "bg-green-100"
                     : "bg-amber-100"
-                }`}
+                  }`}
               >
                 {captain.status === "approved" || captain.status === "active" ? (
                   <svg
@@ -518,18 +520,16 @@ export default function CaptainDashboardPage() {
               </div>
             </div>
             <div
-              className={`rounded-xl p-4 ${
-                captain.status === "approved" || captain.status === "active"
+              className={`rounded-xl p-4 ${captain.status === "approved" || captain.status === "active"
                   ? "bg-green-50"
                   : "bg-amber-50"
-              }`}
+                }`}
             >
               <p
-                className={`text-lg font-bold text-center capitalize ${
-                  captain.status === "approved" || captain.status === "active"
+                className={`text-lg font-bold text-center capitalize ${captain.status === "approved" || captain.status === "active"
                     ? "text-green-600"
                     : "text-amber-600"
-                }`}
+                  }`}
               >
                 {captain.status}
               </p>
@@ -704,6 +704,9 @@ export default function CaptainDashboardPage() {
           )}
         </div>
 
+        {/* Teams Management Section (Add Team Button) */}
+        <CaptainTeamManager />
+        
         {/* Quick Links */}
         <div className="grid md:grid-cols-3 gap-4 mt-8">
           <Link

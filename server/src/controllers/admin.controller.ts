@@ -135,6 +135,66 @@ export const getAllCaptains = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Create captain (admin adding manually)
+export const createCaptain = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, email, rNumber, phone, department, bloodGroup, password } = req.body;
+
+    if (!name || !email || !rNumber || !phone || !department || !bloodGroup || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Check if captain already exists
+    const existingCaptain = await Captain.findOne({
+      $or: [{ email }, { rNumber }]
+    });
+    if (existingCaptain) {
+      return res.status(400).json({ error: "Captain with this email or R-Number already exists" });
+    }
+
+    // Generate unique ID: APX-<LAST 4 OF R NUMBER>-<RANDOM PART><TIMEPART>
+    function randomString(length: number) {
+      return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+    }
+    const last4 = rNumber.slice(-4);
+    const rand = randomString(3);
+    const time = Date.now().toString().slice(-6);
+    const uniqueId = `APX-${last4}-${rand}${time}`;
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const captain = await Captain.create({
+      name,
+      email,
+      rNumber,
+      phone,
+      department,
+      bloodGroup,
+      password: hashedPassword,
+      uniqueId,
+      status: "approved", // Admin-created captains are auto-approved
+    });
+
+    res.status(201).json({
+      message: "Captain created successfully",
+      captain: {
+        _id: captain._id,
+        name: captain.name,
+        email: captain.email,
+        rNumber: captain.rNumber,
+        uniqueId: captain.uniqueId,
+        phone: captain.phone,
+        department: captain.department,
+        bloodGroup: captain.bloodGroup,
+        status: captain.status,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Update captain status
 export const updateCaptainStatus = async (req: AuthRequest, res: Response) => {
   try {
@@ -216,9 +276,70 @@ export const getAllDepartmentPlayers = async (req: AuthRequest, res: Response) =
     if (sport) filter.sport = sport;
 
     const players = await DepartmentPlayer.find(filter)
-      .populate("captain", "name email department")
+      .populate("captain", "name email department uniqueId")
       .sort({ createdAt: -1 });
     res.status(200).json({ players });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Create department player (admin adding manually)
+export const createDepartmentPlayer = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, email, rNumber, phone, department, sport, captainId } = req.body;
+
+    if (!name || !email || !rNumber || !phone || !department || !sport || !captainId) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Verify captain exists
+    const captain = await Captain.findById(captainId);
+    if (!captain) {
+      return res.status(404).json({ error: "Captain not found" });
+    }
+
+    // Check if player with same R-Number already exists in this sport
+    const existingPlayer = await DepartmentPlayer.findOne({ rNumber, sport });
+    if (existingPlayer) {
+      return res.status(400).json({ error: "Player already registered for this sport" });
+    }
+
+    // Check max 2 sports per player
+    const playerSportsCount = await DepartmentPlayer.countDocuments({ rNumber });
+    if (playerSportsCount >= 2) {
+      return res.status(400).json({ error: "This player is already registered in 2 sports (maximum limit)" });
+    }
+
+    // Generate unique ID: PLY-<captainfirstname>-<randompart><time>
+    function randomString(length: number) {
+      return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+    }
+    const captainObj = await Captain.findById(captainId);
+    const captainFirst = (captainObj?.name || "captain").split(" ")[0].toLowerCase();
+    const rand = randomString(3);
+    const time = Date.now().toString().slice(-6);
+    const uniqueId = `PLY-${captainFirst}-${rand}${time}`;
+
+    const player = await DepartmentPlayer.create({
+      name,
+      email,
+      rNumber,
+      phone,
+      department,
+      sport,
+      captain: captainId,
+      uniqueId,
+      status: "approved", // Admin-created players are auto-approved
+    });
+
+    const populatedPlayer = await DepartmentPlayer.findById(player._id)
+      .populate("captain", "name email department uniqueId");
+
+    res.status(201).json({
+      message: "Player created successfully",
+      player: populatedPlayer,
+    });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

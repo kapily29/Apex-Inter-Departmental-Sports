@@ -51,7 +51,7 @@ export default function AddTeamModal({
     name: "",
     sport: "",
     department: "",
-    coach: "",
+    captain: "",
     description: "",
     imageUrl: "",
   });
@@ -177,14 +177,14 @@ export default function AddTeamModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Coach
+              Captain
             </label>
             <input
               type="text"
-              name="coach"
-              value={formData.coach}
+              name="captain"
+              value={formData.captain}
               onChange={handleChange}
-              placeholder="Coach name"
+              placeholder="Captain name"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

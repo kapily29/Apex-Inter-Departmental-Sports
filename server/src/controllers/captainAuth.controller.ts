@@ -1,56 +1,51 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Captain } from "../models/Captain";
 import { DepartmentPlayer, SPORTS_LIST } from "../models/DepartmentPlayer";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
-
-// Generate unique captain ID
-function generateUniqueId(rNumber: string): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `CPT-${rNumber.slice(-4)}-${random}${timestamp.slice(-2)}`.toUpperCase();
+// Extended Request interface for captain auth
+interface CaptainRequest {
+  captain?: {
+    captainId: string;
+    email: string;
+    department: string;
+    role: string;
+  };
+  body: any;
+  params: any;
+  query: any;
 }
 
-// Generate unique player ID
-function generatePlayerUniqueId(rNumber: string): string {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `PLY-${rNumber.slice(-4)}-${random}${timestamp.slice(-2)}`.toUpperCase();
-}
-
-// Captain Registration
-export const registerCaptain = async (req: Request, res: Response) => {
+// Register a new captain
+export const registerCaptain = async (req: CaptainRequest, res: Response) => {
   try {
     const { name, email, password, rNumber, phone, department, bloodGroup } = req.body;
 
-    // Validation
     if (!name || !email || !password || !rNumber || !phone || !department || !bloodGroup) {
-      return res.status(400).json({
-        error: "All fields are required: Name, Email, Password, R-Number, Phone, Department, Blood Group",
-      });
+      return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Check if email already exists
-    const existingEmail = await Captain.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({ error: "Email already registered" });
+    // Check if captain with same email or rNumber exists
+    const existingCaptain = await Captain.findOne({
+      $or: [{ email }, { rNumber }]
+    });
+    if (existingCaptain) {
+      return res.status(400).json({ error: "Captain with this email or R-Number already exists" });
     }
 
-    // Check if R-Number already exists
-    const existingRNumber = await Captain.findOne({ rNumber });
-    if (existingRNumber) {
-      return res.status(400).json({ error: "R-Number already registered" });
+    // Generate unique ID: APX-<LAST 4 OF R NUMBER>-<RANDOM PART><TIMEPART>
+    function randomString(length: number) {
+      return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
     }
-
-    // Generate unique ID
-    const uniqueId = generateUniqueId(rNumber);
+    const last4 = rNumber.slice(-4);
+    const rand = randomString(3);
+    const time = Date.now().toString().slice(-6);
+    const uniqueId = `APX-${last4}-${rand}${time}`;
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create captain
     const captain = await Captain.create({
       name,
       email,
@@ -64,7 +59,7 @@ export const registerCaptain = async (req: Request, res: Response) => {
     });
 
     res.status(201).json({
-      message: "Registration successful! Please wait for admin approval.",
+      message: "Registration successful. Please wait for admin approval.",
       captain: {
         id: captain._id,
         name: captain.name,
@@ -76,64 +71,51 @@ export const registerCaptain = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
-// Captain Login
-export const loginCaptain = async (req: Request, res: Response) => {
+// Login captain
+export const loginCaptain = async (req: CaptainRequest, res: Response) => {
   try {
-    const { identifier, password } = req.body;
+    const { email, identifier, password } = req.body;
+    // Accept login with email, rNumber, or uniqueId
+    const loginValue = email || identifier;
 
-    // Identifier can be email, R-Number, or unique ID
-    if (!identifier || !password) {
-      return res.status(400).json({
-        error: "Email/R-Number/Unique ID and password are required",
-      });
+    if (!loginValue || !password) {
+      return res.status(400).json({ error: "Email / R-Number / Captain ID and password are required" });
     }
 
-    // Find captain by email, rNumber, or uniqueId
     const captain = await Captain.findOne({
       $or: [
-        { email: identifier },
-        { rNumber: identifier },
-        { uniqueId: identifier },
-      ],
+        { email: loginValue },
+        { rNumber: loginValue },
+        { uniqueId: loginValue }
+      ]
     });
-
     if (!captain) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, captain.password);
-    if (!isValidPassword) {
+    const isPasswordValid = await bcrypt.compare(password, captain.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Check if approved
+    // Check if captain is approved
     if (captain.status === "pending") {
-      return res.status(403).json({
-        error: "Your account is pending approval. Please wait for admin approval.",
-      });
+      return res.status(403).json({ error: "Your account is pending approval" });
     }
-
     if (captain.status === "rejected") {
-      return res.status(403).json({
-        error: "Your account has been rejected. Please contact admin.",
-      });
+      return res.status(403).json({ error: "Your account has been rejected" });
     }
-
     if (captain.status === "inactive") {
-      return res.status(403).json({
-        error: "Your account is inactive. Please contact admin.",
-      });
+      return res.status(403).json({ error: "Your account is inactive" });
     }
 
-    // Generate token
     const token = jwt.sign(
-      { captainId: captain._id, role: "captain" },
-      JWT_SECRET,
+      { captainId: captain._id, email: captain.email, department: captain.department, role: "captain" },
+      process.env.JWT_SECRET || "default-secret",
       { expiresIn: "7d" }
     );
 
@@ -153,20 +135,17 @@ export const loginCaptain = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
-// Get Captain Profile (protected)
-export const getCaptainProfile = async (req: any, res: Response) => {
+// Get captain profile
+export const getCaptainProfile = async (req: CaptainRequest, res: Response) => {
   try {
-    const captainId = req.captain?.captainId;
-
-    const captain = await Captain.findById(captainId);
+    const captain = await Captain.findById(req.captain?.captainId).select("-password");
     if (!captain) {
       return res.status(404).json({ error: "Captain not found" });
     }
-
     res.status(200).json({
       captain: {
         id: captain._id,
@@ -178,31 +157,32 @@ export const getCaptainProfile = async (req: any, res: Response) => {
         department: captain.department,
         bloodGroup: captain.bloodGroup,
         status: captain.status,
-        joinDate: captain.joinDate,
       },
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
-// Update Captain Profile (protected)
-export const updateCaptainProfile = async (req: any, res: Response) => {
+// Update captain profile
+export const updateCaptainProfile = async (req: CaptainRequest, res: Response) => {
   try {
-    const captainId = req.captain?.captainId;
     const { name, phone, bloodGroup } = req.body;
 
-    const captain = await Captain.findById(captainId);
+    const updates: any = {};
+    if (name) updates.name = name;
+    if (phone) updates.phone = phone;
+    if (bloodGroup) updates.bloodGroup = bloodGroup;
+
+    const captain = await Captain.findByIdAndUpdate(
+      req.captain?.captainId,
+      updates,
+      { new: true }
+    ).select("-password");
+
     if (!captain) {
       return res.status(404).json({ error: "Captain not found" });
     }
-
-    // Update allowed fields only (cannot change email, rNumber, department, uniqueId)
-    if (name) captain.name = name;
-    if (phone) captain.phone = phone;
-    if (bloodGroup) captain.bloodGroup = bloodGroup;
-
-    await captain.save();
 
     res.status(200).json({
       message: "Profile updated successfully",
@@ -219,58 +199,64 @@ export const updateCaptainProfile = async (req: any, res: Response) => {
       },
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
-// Add Player to Department (protected - captain only)
-export const addDepartmentPlayer = async (req: any, res: Response) => {
+// Get sports list
+export const getSportsList = async (_req: CaptainRequest, res: Response) => {
+  res.status(200).json({ sports: SPORTS_LIST });
+};
+
+// Get department players (for the captain's department)
+export const getDepartmentPlayers = async (req: CaptainRequest, res: Response) => {
   try {
-    const captainId = req.captain?.captainId;
+    const players = await DepartmentPlayer.find({ captain: req.captain?.captainId })
+      .populate("captain", "name email uniqueId department")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ players });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || "Internal server error" });
+  }
+};
+
+// Add department player
+export const addDepartmentPlayer = async (req: CaptainRequest, res: Response) => {
+  try {
     const { name, rNumber, phone, email, sport } = req.body;
 
-    // Get captain to get department
-    const captain = await Captain.findById(captainId);
+    if (!name || !rNumber || !phone || !email || !sport) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Get captain's department
+    const captain = await Captain.findById(req.captain?.captainId);
     if (!captain) {
       return res.status(404).json({ error: "Captain not found" });
     }
 
-    // Validation
-    if (!name || !rNumber || !phone || !email || !sport) {
-      return res.status(400).json({
-        error: "All fields are required: Name, R-Number, Phone, Email, Sport",
-      });
-    }
-
-    // Check if player already exists in this sport in this department
-    const existingPlayer = await DepartmentPlayer.findOne({
-      rNumber,
-      department: captain.department,
-      sport,
-    });
-
+    // Check if player with same rNumber is already registered in this sport
+    const existingPlayer = await DepartmentPlayer.findOne({ rNumber, sport });
     if (existingPlayer) {
-      return res.status(400).json({
-        error: "This player is already registered for this sport in your department",
-      });
+      return res.status(400).json({ error: "This player is already registered for this sport" });
     }
 
-    // Check if player is already in 2 sports in this department
-    const playerSportsCount = await DepartmentPlayer.countDocuments({
-      rNumber,
-      department: captain.department,
-    });
-
+    // Check if player is already in 2 sports (max limit)
+    const playerSportsCount = await DepartmentPlayer.countDocuments({ rNumber });
     if (playerSportsCount >= 2) {
-      return res.status(400).json({
-        error: "This player is already registered in 2 sports. Maximum limit reached.",
-      });
+      return res.status(400).json({ error: "This player is already registered in 2 sports (maximum limit)" });
     }
 
-    // Generate unique player ID
-    const uniqueId = generatePlayerUniqueId(rNumber);
+    // Generate unique ID: PLY-<captainfirstname>-<randompart><time>
+    function randomString(length: number) {
+      return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+    }
+    const captainFirst = (captain.name || "captain").split(" ")[0].toLowerCase();
+    const rand = randomString(3);
+    const time = Date.now().toString().slice(-6);
+    const uniqueId = `PLY-${captainFirst}-${rand}${time}`;
 
-    // Create player
     const player = await DepartmentPlayer.create({
       name,
       rNumber,
@@ -279,92 +265,67 @@ export const addDepartmentPlayer = async (req: any, res: Response) => {
       email,
       sport,
       department: captain.department,
-      captain: captainId,
+      captain: captain._id,
       status: "pending",
     });
 
+    const populatedPlayer = await DepartmentPlayer.findById(player._id)
+      .populate("captain", "name email uniqueId department");
+
     res.status(201).json({
-      message: "Player added successfully. Waiting for admin approval.",
-      player,
+      message: "Player added successfully. Pending admin approval.",
+      player: populatedPlayer,
     });
   } catch (error: any) {
-    if (error.code === 11000) {
-      return res.status(400).json({
-        error: "This player is already registered for this sport",
-      });
-    }
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
-// Get Department Players (protected - captain only)
-export const getDepartmentPlayers = async (req: any, res: Response) => {
+// Update department player
+export const updateDepartmentPlayer = async (req: CaptainRequest, res: Response) => {
   try {
-    const captainId = req.captain?.captainId;
-
-    const captain = await Captain.findById(captainId);
-    if (!captain) {
-      return res.status(404).json({ error: "Captain not found" });
-    }
-
-    const players = await DepartmentPlayer.find({ captain: captainId }).sort({ createdAt: -1 });
-
-    res.status(200).json({ players });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Update Department Player (protected - captain only)
-export const updateDepartmentPlayer = async (req: any, res: Response) => {
-  try {
-    const captainId = req.captain?.captainId;
     const { id } = req.params;
-    const { name, phone, email } = req.body;
+    const { name, phone, email, sport } = req.body;
 
-    const player = await DepartmentPlayer.findOne({ _id: id, captain: captainId });
+    // Verify the player belongs to this captain
+    const player = await DepartmentPlayer.findOne({ _id: id, captain: req.captain?.captainId });
     if (!player) {
-      return res.status(404).json({ error: "Player not found or not authorized" });
+      return res.status(404).json({ error: "Player not found or you don't have permission" });
     }
 
-    // Update allowed fields
-    if (name) player.name = name;
-    if (phone) player.phone = phone;
-    if (email) player.email = email;
+    const updates: any = {};
+    if (name) updates.name = name;
+    if (phone) updates.phone = phone;
+    if (email) updates.email = email;
+    if (sport) updates.sport = sport;
 
-    await player.save();
+    const updatedPlayer = await DepartmentPlayer.findByIdAndUpdate(id, updates, { new: true })
+      .populate("captain", "name email uniqueId department");
 
     res.status(200).json({
       message: "Player updated successfully",
-      player,
+      player: updatedPlayer,
     });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 
-// Delete Department Player (protected - captain only)
-export const deleteDepartmentPlayer = async (req: any, res: Response) => {
+// Delete department player
+export const deleteDepartmentPlayer = async (req: CaptainRequest, res: Response) => {
   try {
-    const captainId = req.captain?.captainId;
     const { id } = req.params;
 
-    const player = await DepartmentPlayer.findOneAndDelete({ _id: id, captain: captainId });
+    // Verify the player belongs to this captain
+    const player = await DepartmentPlayer.findOne({ _id: id, captain: req.captain?.captainId });
     if (!player) {
-      return res.status(404).json({ error: "Player not found or not authorized" });
+      return res.status(404).json({ error: "Player not found or you don't have permission" });
     }
+
+    await DepartmentPlayer.findByIdAndDelete(id);
 
     res.status(200).json({ message: "Player deleted successfully" });
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get Sports List
-export const getSportsList = async (req: Request, res: Response) => {
-  try {
-    res.status(200).json({ sports: SPORTS_LIST });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };

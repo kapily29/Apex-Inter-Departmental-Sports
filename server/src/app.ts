@@ -3,13 +3,13 @@ import cors from "cors";
 import adminRoutes from "./routes/admin.routes";
 import teamRoutes from "./routes/team.routes";
 import matchRoutes from "./routes/match.routes";
-import playerRoutes from "./routes/player.routes";
-import playerAuthRoutes from "./routes/playerAuth.routes";
 import captainAuthRoutes from "./routes/captainAuth.routes";
+
 import announcementRoutes from "./routes/announcement.routes";
 import galleryRoutes from "./routes/gallery.routes";
 import scheduleRoutes from "./routes/schedule.routes";
 import ruleRoutes from "./routes/rule.routes";
+import captainTeamRoutes from "./routes/captainTeam.routes";
 
 const app = express();
 
@@ -23,9 +23,9 @@ app.use(cors());
 app.use("/api/admin", adminRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/matches", matchRoutes);
-app.use("/api/players", playerRoutes);
-app.use("/api/player-auth", playerAuthRoutes);
 app.use("/api/captain-auth", captainAuthRoutes);
+
+app.use("/api/captain", captainTeamRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/schedules", scheduleRoutes);

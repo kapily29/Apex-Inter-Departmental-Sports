@@ -34,8 +34,12 @@ export default function Footer() {
           <div>
             <h3 className="text-base sm:text-lg font-extrabold">Contact Info</h3>
             <div className="mt-3 sm:mt-4 space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-white/80">
-              <div className="break-all">info@collegesports.edu</div>
-              <div>+91 98765 43210</div>
+              <div className="break-all">E-mail: <a href="mailto:info@apexuniversity.co.in" className="underline hover:text-blue-300">info@apexuniversity.co.in</a></div>
+              <div>Contact No.: <br />
+                <a href="tel:+917413874138" className="underline hover:text-blue-300">+91 7413874138</a> ,
+                <a href="tel:+911416660999" className="underline hover:text-blue-300">+91 1416660999</a> ,
+                <a href="tel:+917353006499" className="underline hover:text-blue-300">+91 7353006499</a>
+              </div>
               <div className="hidden sm:block">
                 Address: Sitapura, Jaipur <br />
                 Rajasthan, India
@@ -46,8 +50,11 @@ export default function Footer() {
           {/* Follow Us */}
           <div className="hidden sm:block">
             <h3 className="text-base sm:text-lg font-extrabold">Follow Us</h3>
-            <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-white/80">
-              Facebook • Instagram • YouTube
+            <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-white/80 flex flex-col gap-2">
+              <a href="https://www.apexuniversity.co.in/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300 underline">Website</a>
+              <a href="https://www.instagram.com/apex_university?igsh=cGMwd3ZuZG5obmQx" target="_blank" rel="noopener noreferrer" className="hover:text-pink-300 underline">Instagram</a>
+              <a href="https://www.youtube.com/@ApexColleges" target="_blank" rel="noopener noreferrer" className="hover:text-red-400 underline">YouTube</a>
+              <a href="https://www.facebook.com/ApexUniversity.Jaipur/" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 underline">Facebook</a>
             </div>
           </div>
 

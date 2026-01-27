@@ -6,6 +6,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
 export interface CaptainAuthRequest extends Request {
   captain?: {
     captainId: string;
+    email: string;
+    department: string;
     role: string;
   };
 }
@@ -25,6 +27,8 @@ export const captainAuthMiddleware = (
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET) as {
       captainId: string;
+      email: string;
+      department: string;
       role: string;
     };
 

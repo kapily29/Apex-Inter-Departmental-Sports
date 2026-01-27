@@ -68,6 +68,44 @@ export default function ManageDepartmentPlayers({
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
 
+  // Add player modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [captainsList, setCaptainsList] = useState<{_id: string; name: string; uniqueId: string; department: string}[]>([]);
+  const [addFormData, setAddFormData] = useState({
+    name: "",
+    email: "",
+    rNumber: "",
+    phone: "",
+    department: "",
+    sport: "",
+    captainId: "",
+  });
+  const [addLoading, setAddLoading] = useState(false);
+  const [addError, setAddError] = useState("");
+
+  const DEPARTMENTS = [
+    "Engineering",
+    "Commerce & Management",
+    "Computer & IT",
+    "Law",
+    "Basic Life & Applied Sciences",
+    "Humanities and Arts",
+    "Journalism & Mass Communication",
+    "Physiotherapy",
+    "Naturopathy & Yogic Sciences",
+    "Fashion & Design",
+    "Pharmaceutical Sciences",
+    "Special Education",
+    "Clinical Psychology",
+    "Agriculture",
+    "Library Science",
+    "Nursing",
+    "Education",
+    "Paramedical",
+    "Veterinary Science",
+    "Research",
+  ];
+
   useEffect(() => {
     fetchPlayers();
   }, [token, refreshKey]);
@@ -167,6 +205,78 @@ export default function ManageDepartmentPlayers({
     }
   };
 
+  // Add Player handlers
+  const fetchCaptains = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.ADMIN_CAPTAINS_LIST, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const approvedCaptains = (response.data.captains || []).filter(
+        (c: any) => c.status === "approved" || c.status === "active"
+      );
+      setCaptainsList(approvedCaptains);
+    } catch (error) {
+      console.error("Failed to fetch captains");
+    }
+  };
+
+  const openAddModal = async () => {
+    setShowAddModal(true);
+    setAddFormData({
+      name: "",
+      email: "",
+      rNumber: "",
+      phone: "",
+      department: "",
+      sport: "",
+      captainId: "",
+    });
+    setAddError("");
+    await fetchCaptains();
+  };
+
+  const closeAddModal = () => {
+    setShowAddModal(false);
+    setAddError("");
+  };
+
+  const handleAddChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setAddFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Auto-fill department when captain is selected
+    if (name === "captainId" && value) {
+      const selectedCaptain = captainsList.find((c) => c._id === value);
+      if (selectedCaptain) {
+        setAddFormData((prev) => ({ ...prev, captainId: value, department: selectedCaptain.department }));
+      }
+    }
+  };
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddLoading(true);
+    setAddError("");
+
+    try {
+      await axios.post(
+        API_ENDPOINTS.ADMIN_DEPT_PLAYERS_CREATE,
+        addFormData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      fetchPlayers();
+      closeAddModal();
+      showNotification("Player added successfully", "success");
+    } catch (err: any) {
+      setAddError(err.response?.data?.error || "Failed to add player");
+    } finally {
+      setAddLoading(false);
+    }
+  };
+
   const filteredPlayers = players.filter((player) => {
     const statusMatch =
       selectedStatus === "All" ||
@@ -201,10 +311,16 @@ export default function ManageDepartmentPlayers({
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="border-b px-4 sm:px-6 py-3 sm:py-4">
+      <div className="border-b px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
           Manage Department Players
         </h2>
+        <button
+          onClick={openAddModal}
+          className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg font-semibold text-sm shadow-lg transition-all flex items-center gap-2 justify-center"
+        >
+          ➕ Add Player
+        </button>
       </div>
 
       {/* Filter Bar */}
@@ -580,6 +696,181 @@ export default function ManageDepartmentPlayers({
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
                     {editLoading ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Player Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 text-white">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">➕ Add New Player</h2>
+                <button
+                  onClick={closeAddModal}
+                  className="text-white/80 hover:text-white text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-blue-100 text-sm mt-1">Admin-created players are auto-approved</p>
+            </div>
+
+            <div className="p-6">
+              {addError && (
+                <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg text-sm">
+                  {addError}
+                </div>
+              )}
+
+              <form onSubmit={handleAddSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Assign to Captain * <span className="text-xs text-slate-500">(Captain must be approved)</span>
+                  </label>
+                  <select
+                    name="captainId"
+                    value={addFormData.captainId}
+                    onChange={handleAddChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Captain</option>
+                    {captainsList.map((captain) => (
+                      <option key={captain._id} value={captain._id}>
+                        {captain.name} ({captain.uniqueId}) - {captain.department}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Player Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={addFormData.name}
+                      onChange={handleAddChange}
+                      required
+                      placeholder="Enter full name"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      R-Number *
+                    </label>
+                    <input
+                      type="text"
+                      name="rNumber"
+                      value={addFormData.rNumber}
+                      onChange={handleAddChange}
+                      required
+                      placeholder="e.g., R12345"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={addFormData.email}
+                    onChange={handleAddChange}
+                    required
+                    placeholder="player@email.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone *
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={addFormData.phone}
+                      onChange={handleAddChange}
+                      required
+                      placeholder="10-digit number"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sport *
+                    </label>
+                    <select
+                      name="sport"
+                      value={addFormData.sport}
+                      onChange={handleAddChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Sport</option>
+                      {SPORTS_LIST.map((sport) => (
+                        <option key={sport} value={sport}>{sport}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Department
+                  </label>
+                  <select
+                    name="department"
+                    value={addFormData.department}
+                    onChange={handleAddChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+                  >
+                    <option value="">Select Department</option>
+                    {DEPARTMENTS.map((dept) => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-slate-500 mt-1">Auto-filled based on selected captain</p>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
+                  <p className="text-amber-700 font-medium">⚠️ Note:</p>
+                  <p className="text-amber-600 text-xs mt-1">
+                    A player can be registered in maximum 2 sports only.
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={closeAddModal}
+                    className="flex-1 px-4 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={addLoading}
+                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 font-semibold"
+                  >
+                    {addLoading ? "Adding..." : "Add Player"}
                   </button>
                 </div>
               </form>

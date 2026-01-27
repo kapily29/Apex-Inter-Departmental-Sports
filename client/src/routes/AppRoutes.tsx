@@ -12,6 +12,7 @@ import PlayerRegisterPage from "../pages/PlayerRegisterPage";
 import PlayerLoginPage from "../pages/PlayerLoginPage";
 import PlayerDashboardPage from "../pages/PlayerDashboardPage";
 import PlayerVerifyPage from "../pages/PlayerVerifyPage";
+import RulesPage from "../pages/RulesPage";
 import ProtectedRoute from "./ProtectedRoute";
 import PlayerProtectedRoute from "./PlayerProtectedRoute";
 
@@ -25,6 +26,7 @@ export default function AppRoutes() {
       <Route path="/live" element={<LiveScorePage />} />
       <Route path="/gallery" element={<GalleryPage />} />
       <Route path="/teams" element={<TeamsPage />} />
+      <Route path="/rules" element={<RulesPage />} />
 
       {/* Player Routes */}
       <Route path="/player-register" element={<PlayerRegisterPage />} />

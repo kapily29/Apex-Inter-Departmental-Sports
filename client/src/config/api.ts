@@ -55,4 +55,18 @@ export const API_ENDPOINTS = {
   PLAYER_VERIFY: `${API_BASE_URL}/player-auth/verify`,
   PLAYER_PROFILE: `${API_BASE_URL}/player-auth/profile`,
   PLAYER_UPDATE_PROFILE: `${API_BASE_URL}/player-auth/profile`,
+
+  // Schedules
+  SCHEDULES_LIST: `${API_BASE_URL}/schedules`,
+  SCHEDULES_BY_ID: (id: string) => `${API_BASE_URL}/schedules/${id}`,
+  SCHEDULES_CREATE: `${API_BASE_URL}/schedules`,
+  SCHEDULES_UPDATE: (id: string) => `${API_BASE_URL}/schedules/${id}`,
+  SCHEDULES_DELETE: (id: string) => `${API_BASE_URL}/schedules/${id}`,
+
+  // Rules
+  RULES_LIST: `${API_BASE_URL}/rules`,
+  RULES_BY_ID: (id: string) => `${API_BASE_URL}/rules/${id}`,
+  RULES_CREATE: `${API_BASE_URL}/rules`,
+  RULES_UPDATE: (id: string) => `${API_BASE_URL}/rules/${id}`,
+  RULES_DELETE: (id: string) => `${API_BASE_URL}/rules/${id}`,
 };

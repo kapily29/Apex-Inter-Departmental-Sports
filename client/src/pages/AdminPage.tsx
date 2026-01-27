@@ -6,6 +6,8 @@ import ManageMatches from "../components/admin/ManageMatches";
 import ManagePlayers from "../components/admin/ManagePlayers";
 import ManageTeams from "../components/admin/ManageTeams";
 import ManageGallery from "../components/admin/ManageGallery";
+import ManageSchedules from "../components/admin/ManageSchedules";
+import ManageRules from "../components/admin/ManageRules";
 import PlayerApprovals from "../components/admin/PlayerApprovals";
 import AdminAnnouncements from "../components/admin/AdminAnnouncements";
 import AdminProfile from "../components/admin/AdminProfile";
@@ -14,6 +16,8 @@ import UpdateScoreModal from "../components/admin/UpdateScoreModal";
 import AddAnnouncementModal from "../components/admin/AddAnnouncementModal";
 import AddTeamModal from "../components/admin/AddTeamModal";
 import AddPlayerModal from "../components/admin/AddPlayerModal";
+import AddScheduleModal from "../components/admin/AddScheduleModal";
+import AddRuleModal from "../components/admin/AddRuleModal";
 import { useAdmin } from "../context/AdminContext";
 import { API_ENDPOINTS } from "../config/api";
 import axios from "axios";
@@ -42,6 +46,10 @@ export default function AdminPage() {
   const [showAddAnnouncement, setShowAddAnnouncement] = useState(false);
   const [showAddTeam, setShowAddTeam] = useState(false);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [showAddSchedule, setShowAddSchedule] = useState(false);
+  const [showAddRule, setShowAddRule] = useState(false);
+  const [editSchedule, setEditSchedule] = useState<any>(null);
+  const [editRule, setEditRule] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   
   // For UpdateScoreModal
@@ -224,6 +232,26 @@ export default function AdminPage() {
               📸 Gallery
             </button>
             <button
+              onClick={() => setCurrentView("schedules")}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
+                currentView === "schedules"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+            >
+              📅 Schedules
+            </button>
+            <button
+              onClick={() => setCurrentView("rules")}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
+                currentView === "rules"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+            >
+              📖 Rules
+            </button>
+            <button
               onClick={() => setCurrentView("profile")}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
                 currentView === "profile"
@@ -294,6 +322,15 @@ export default function AdminPage() {
                   className="px-3 sm:px-6 py-2 sm:py-3 bg-green-700 text-white rounded-lg font-semibold hover:bg-green-800 flex items-center gap-1 sm:gap-2 transition text-xs sm:text-base"
                 >
                   📢 <span className="hidden sm:inline">Post</span> Announce
+                </button>
+                <button
+                  onClick={() => {
+                    setEditSchedule(null);
+                    setShowAddSchedule(true);
+                  }}
+                  className="px-3 sm:px-6 py-2 sm:py-3 bg-cyan-700 text-white rounded-lg font-semibold hover:bg-cyan-800 flex items-center gap-1 sm:gap-2 transition text-xs sm:text-base"
+                >
+                  📅 <span className="hidden sm:inline">Add</span> Schedule
                 </button>
               </div>
             </div>
@@ -383,6 +420,54 @@ export default function AdminPage() {
           </div>
         )}
 
+        {currentView === "schedules" && (
+          <div className="px-4 sm:px-8 py-4 sm:py-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Manage Schedules</h2>
+              <button
+                onClick={() => {
+                  setEditSchedule(null);
+                  setShowAddSchedule(true);
+                }}
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-800 transition text-sm sm:text-base w-full sm:w-auto"
+              >
+                📅 Add Schedule
+              </button>
+            </div>
+            <ManageSchedules 
+              refreshKey={refreshKey} 
+              onEditSchedule={(schedule) => {
+                setEditSchedule(schedule);
+                setShowAddSchedule(true);
+              }}
+            />
+          </div>
+        )}
+
+        {currentView === "rules" && (
+          <div className="px-4 sm:px-8 py-4 sm:py-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Manage Rules</h2>
+              <button
+                onClick={() => {
+                  setEditRule(null);
+                  setShowAddRule(true);
+                }}
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-800 transition text-sm sm:text-base w-full sm:w-auto"
+              >
+                📖 Add Rule
+              </button>
+            </div>
+            <ManageRules 
+              refreshKey={refreshKey} 
+              onEditRule={(rule) => {
+                setEditRule(rule);
+                setShowAddRule(true);
+              }}
+            />
+          </div>
+        )}
+
         {currentView === "profile" && (
           <div className="px-4 sm:px-8 py-4 sm:py-8">
             <AdminProfile />
@@ -421,6 +506,24 @@ export default function AdminPage() {
         isOpen={showAddPlayer}
         onClose={() => setShowAddPlayer(false)}
         onPlayerAdded={handleMatchAdded}
+      />
+      <AddScheduleModal
+        isOpen={showAddSchedule}
+        onClose={() => {
+          setShowAddSchedule(false);
+          setEditSchedule(null);
+        }}
+        onScheduleAdded={handleMatchAdded}
+        editSchedule={editSchedule}
+      />
+      <AddRuleModal
+        isOpen={showAddRule}
+        onClose={() => {
+          setShowAddRule(false);
+          setEditRule(null);
+        }}
+        onRuleAdded={handleMatchAdded}
+        editRule={editRule}
       />
 
       <Footer />

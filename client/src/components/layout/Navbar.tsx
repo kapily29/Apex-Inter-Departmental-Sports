@@ -63,6 +63,10 @@ export default function Navbar() {
               Gallery
             </NavLink>
 
+            <NavLink className={navClass} to="/rules">
+              Rules
+            </NavLink>
+
             {isAdminAuth && (
               <NavLink className={navClass} to="/admin">
                 Admin
@@ -203,6 +207,14 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               📸 Gallery
+            </NavLink>
+
+            <NavLink 
+              className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"}`}
+              to="/rules"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              📖 Rules
             </NavLink>
 
             {isAdminAuth && (

@@ -5,7 +5,6 @@ import StatCard from "../components/admin/StatCard";
 import ManageMatches from "../components/admin/ManageMatches";
 import ManageCaptains from "../components/admin/ManageCaptains";
 import ManageDepartmentPlayers from "../components/admin/ManageDepartmentPlayers";
-import ManageTeams from "../components/admin/ManageTeams";
 import ManageGallery from "../components/admin/ManageGallery";
 import ManageSchedules from "../components/admin/ManageSchedules";
 import ManageRules from "../components/admin/ManageRules";
@@ -15,7 +14,6 @@ import AdminProfile from "../components/admin/AdminProfile";
 import AddMatchModal from "../components/admin/AddMatchModal";
 import UpdateScoreModal from "../components/admin/UpdateScoreModal";
 import AddAnnouncementModal from "../components/admin/AddAnnouncementModal";
-import AddTeamModal from "../components/admin/AddTeamModal";
 import AddScheduleModal from "../components/admin/AddScheduleModal";
 import AddRuleModal from "../components/admin/AddRuleModal";
 import { useAdmin } from "../context/AdminContext";
@@ -386,7 +384,7 @@ export default function AdminPage() {
                 🛡️ Add Team
               </button>
             </div>
-            <ManageTeams refreshKey={refreshKey} />
+            {/* <ManageTeams refreshKey={refreshKey} /> */}
           </div>
         )}
 
@@ -515,11 +513,11 @@ export default function AdminPage() {
         onClose={() => setShowAddAnnouncement(false)}
         onAnnouncementAdded={handleAnnouncementAdded}
       />
-      <AddTeamModal
+      {/* <AddTeamModal
         isOpen={showAddTeam}
         onClose={() => setShowAddTeam(false)}
         onTeamAdded={handleMatchAdded}
-      />
+      /> */}
       <AddScheduleModal
         isOpen={showAddSchedule}
         onClose={() => {

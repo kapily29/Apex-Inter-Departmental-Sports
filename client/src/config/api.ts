@@ -12,6 +12,18 @@ export const API_ENDPOINTS = {
   ADMIN_PROFILE: `${API_BASE_URL}/admin/profile`,
   ADMIN_PROFILE_UPDATE: `${API_BASE_URL}/admin/profile/update`,
 
+  // Admin - Captain Management
+  ADMIN_CAPTAINS_LIST: `${API_BASE_URL}/admin/captains`,
+  ADMIN_CAPTAINS_UPDATE: (id: string) => `${API_BASE_URL}/admin/captains/${id}`,
+  ADMIN_CAPTAINS_STATUS: (id: string) => `${API_BASE_URL}/admin/captains/${id}/status`,
+  ADMIN_CAPTAINS_DELETE: (id: string) => `${API_BASE_URL}/admin/captains/${id}`,
+
+  // Admin - Department Player Management
+  ADMIN_DEPT_PLAYERS_LIST: `${API_BASE_URL}/admin/department-players`,
+  ADMIN_DEPT_PLAYERS_UPDATE: (id: string) => `${API_BASE_URL}/admin/department-players/${id}`,
+  ADMIN_DEPT_PLAYERS_STATUS: (id: string) => `${API_BASE_URL}/admin/department-players/${id}/status`,
+  ADMIN_DEPT_PLAYERS_DELETE: (id: string) => `${API_BASE_URL}/admin/department-players/${id}`,
+
   // Teams
   TEAMS_LIST: `${API_BASE_URL}/teams`,
   TEAMS_BY_ID: (id: string) => `${API_BASE_URL}/teams/${id}`,
@@ -27,7 +39,7 @@ export const API_ENDPOINTS = {
   MATCHES_UPDATE_SCORE: (id: string) => `${API_BASE_URL}/matches/${id}/score`,
   MATCHES_DELETE: (id: string) => `${API_BASE_URL}/matches/${id}`,
 
-  // Players
+  // Players (legacy - keeping for compatibility)
   PLAYERS_LIST: `${API_BASE_URL}/players`,
   PLAYERS_BY_ID: (id: string) => `${API_BASE_URL}/players/${id}`,
   PLAYERS_CREATE: `${API_BASE_URL}/players`,
@@ -49,12 +61,25 @@ export const API_ENDPOINTS = {
   GALLERY_UPDATE: (id: string) => `${API_BASE_URL}/gallery/${id}`,
   GALLERY_DELETE: (id: string) => `${API_BASE_URL}/gallery/${id}`,
 
-  // Player Auth
+  // Player Auth (legacy - keeping for compatibility)
   PLAYER_REGISTER: `${API_BASE_URL}/player-auth/register`,
   PLAYER_LOGIN: `${API_BASE_URL}/player-auth/login`,
   PLAYER_VERIFY: `${API_BASE_URL}/player-auth/verify`,
   PLAYER_PROFILE: `${API_BASE_URL}/player-auth/profile`,
   PLAYER_UPDATE_PROFILE: `${API_BASE_URL}/player-auth/profile`,
+
+  // Captain Auth
+  CAPTAIN_REGISTER: `${API_BASE_URL}/captain-auth/register`,
+  CAPTAIN_LOGIN: `${API_BASE_URL}/captain-auth/login`,
+  CAPTAIN_PROFILE: `${API_BASE_URL}/captain-auth/profile`,
+  CAPTAIN_UPDATE_PROFILE: `${API_BASE_URL}/captain-auth/profile`,
+  CAPTAIN_SPORTS_LIST: `${API_BASE_URL}/captain-auth/sports`,
+  
+  // Captain - Department Players Management
+  CAPTAIN_PLAYERS_LIST: `${API_BASE_URL}/captain-auth/players`,
+  CAPTAIN_PLAYERS_ADD: `${API_BASE_URL}/captain-auth/players`,
+  CAPTAIN_PLAYERS_UPDATE: (id: string) => `${API_BASE_URL}/captain-auth/players/${id}`,
+  CAPTAIN_PLAYERS_DELETE: (id: string) => `${API_BASE_URL}/captain-auth/players/${id}`,
 
   // Schedules
   SCHEDULES_LIST: `${API_BASE_URL}/schedules`,

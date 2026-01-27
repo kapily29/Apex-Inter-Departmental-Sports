@@ -8,13 +8,12 @@ import GalleryPage from "../pages/GalleryPage";
 import AdminPage from "../pages/AdminPage";
 import TeamsPage from "../pages/TeamsPage";
 import AdminLoginPage from "../pages/AdminLoginPage";
-import PlayerRegisterPage from "../pages/PlayerRegisterPage";
-import PlayerLoginPage from "../pages/PlayerLoginPage";
-import PlayerDashboardPage from "../pages/PlayerDashboardPage";
-import PlayerVerifyPage from "../pages/PlayerVerifyPage";
+import CaptainRegisterPage from "../pages/CaptainRegisterPage";
+import CaptainLoginPage from "../pages/CaptainLoginPage";
+import CaptainDashboardPage from "../pages/CaptainDashboardPage";
 import RulesPage from "../pages/RulesPage";
 import ProtectedRoute from "./ProtectedRoute";
-import PlayerProtectedRoute from "./PlayerProtectedRoute";
+import CaptainProtectedRoute from "./CaptainProtectedRoute";
 
 export default function AppRoutes() {
   return (
@@ -28,16 +27,15 @@ export default function AppRoutes() {
       <Route path="/teams" element={<TeamsPage />} />
       <Route path="/rules" element={<RulesPage />} />
 
-      {/* Player Routes */}
-      <Route path="/player-register" element={<PlayerRegisterPage />} />
-      <Route path="/player-login" element={<PlayerLoginPage />} />
-      <Route path="/player-verify" element={<PlayerVerifyPage />} />
+      {/* Captain Routes */}
+      <Route path="/captain-register" element={<CaptainRegisterPage />} />
+      <Route path="/captain-login" element={<CaptainLoginPage />} />
       <Route
-        path="/player-dashboard"
+        path="/captain-dashboard"
         element={
-          <PlayerProtectedRoute>
-            <PlayerDashboardPage />
-          </PlayerProtectedRoute>
+          <CaptainProtectedRoute>
+            <CaptainDashboardPage />
+          </CaptainProtectedRoute>
         }
       />
 

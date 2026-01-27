@@ -7,8 +7,11 @@ import teamRoutes from "../src/routes/team.routes";
 import matchRoutes from "../src/routes/match.routes";
 import playerRoutes from "../src/routes/player.routes";
 import playerAuthRoutes from "../src/routes/playerAuth.routes";
+import captainAuthRoutes from "../src/routes/captainAuth.routes";
 import announcementRoutes from "../src/routes/announcement.routes";
 import galleryRoutes from "../src/routes/gallery.routes";
+import scheduleRoutes from "../src/routes/schedule.routes";
+import ruleRoutes from "../src/routes/rule.routes";
 
 const app = express();
 
@@ -37,14 +40,18 @@ const dbMiddleware = async (_req: express.Request, _res: express.Response, next:
 // Health routes
 app.get("/", (_req, res) => res.json({ message: "Apex Sports API", version: "1.0.0" }));
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
+app.get("/api", (_req, res) => res.json({ message: "Apex Sports API", status: "online" }));
 
-// Routes
-app.use("/admin", dbMiddleware, adminRoutes);
-app.use("/teams", dbMiddleware, teamRoutes);
-app.use("/matches", dbMiddleware, matchRoutes);
-app.use("/players", dbMiddleware, playerRoutes);
-app.use("/player-auth", dbMiddleware, playerAuthRoutes);
-app.use("/announcements", dbMiddleware, announcementRoutes);
-app.use("/gallery", dbMiddleware, galleryRoutes);
+// Routes with /api prefix (matching frontend expectations)
+app.use("/api/admin", dbMiddleware, adminRoutes);
+app.use("/api/teams", dbMiddleware, teamRoutes);
+app.use("/api/matches", dbMiddleware, matchRoutes);
+app.use("/api/players", dbMiddleware, playerRoutes);
+app.use("/api/player-auth", dbMiddleware, playerAuthRoutes);
+app.use("/api/captain-auth", dbMiddleware, captainAuthRoutes);
+app.use("/api/announcements", dbMiddleware, announcementRoutes);
+app.use("/api/gallery", dbMiddleware, galleryRoutes);
+app.use("/api/schedules", dbMiddleware, scheduleRoutes);
+app.use("/api/rules", dbMiddleware, ruleRoutes);
 
 export default app;

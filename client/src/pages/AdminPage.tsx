@@ -3,19 +3,19 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import StatCard from "../components/admin/StatCard";
 import ManageMatches from "../components/admin/ManageMatches";
-import ManagePlayers from "../components/admin/ManagePlayers";
+import ManageCaptains from "../components/admin/ManageCaptains";
+import ManageDepartmentPlayers from "../components/admin/ManageDepartmentPlayers";
 import ManageTeams from "../components/admin/ManageTeams";
 import ManageGallery from "../components/admin/ManageGallery";
 import ManageSchedules from "../components/admin/ManageSchedules";
 import ManageRules from "../components/admin/ManageRules";
-import PlayerApprovals from "../components/admin/PlayerApprovals";
+import CaptainApprovals from "../components/admin/CaptainApprovals";
 import AdminAnnouncements from "../components/admin/AdminAnnouncements";
 import AdminProfile from "../components/admin/AdminProfile";
 import AddMatchModal from "../components/admin/AddMatchModal";
 import UpdateScoreModal from "../components/admin/UpdateScoreModal";
 import AddAnnouncementModal from "../components/admin/AddAnnouncementModal";
 import AddTeamModal from "../components/admin/AddTeamModal";
-import AddPlayerModal from "../components/admin/AddPlayerModal";
 import AddScheduleModal from "../components/admin/AddScheduleModal";
 import AddRuleModal from "../components/admin/AddRuleModal";
 import { useAdmin } from "../context/AdminContext";
@@ -45,7 +45,6 @@ export default function AdminPage() {
   const [showUpdateScore, setShowUpdateScore] = useState(false);
   const [showAddAnnouncement, setShowAddAnnouncement] = useState(false);
   const [showAddTeam, setShowAddTeam] = useState(false);
-  const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showAddSchedule, setShowAddSchedule] = useState(false);
   const [showAddRule, setShowAddRule] = useState(false);
   const [editSchedule, setEditSchedule] = useState<any>(null);
@@ -65,11 +64,14 @@ export default function AdminPage() {
   const fetchStats = async () => {
     if (!token) return;
     try {
-      const [teamsRes, playersRes, matchesRes] = await Promise.all([
+      const [teamsRes, captainsRes, playersRes, matchesRes] = await Promise.all([
         axios.get(API_ENDPOINTS.TEAMS_LIST, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get(API_ENDPOINTS.PLAYERS_LIST, {
+        axios.get(API_ENDPOINTS.ADMIN_CAPTAINS_LIST, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(API_ENDPOINTS.ADMIN_DEPT_PLAYERS_LIST, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get(API_ENDPOINTS.MATCHES_LIST, {
@@ -77,9 +79,12 @@ export default function AdminPage() {
         }),
       ]);
 
+      const captainsCount = captainsRes.data.captains?.length || 0;
+      const playersCount = playersRes.data.players?.length || 0;
+
       setStats({
         teams: teamsRes.data.teams?.length || 0,
-        players: playersRes.data.players?.length || 0,
+        players: captainsCount + playersCount,
         matches: matchesRes.data.matches?.length || 0,
         pendingScores: matchesRes.data.matches?.filter(
           (m: any) => m.status === "scheduled"
@@ -192,14 +197,24 @@ export default function AdminPage() {
               🛡️ Teams
             </button>
             <button
-              onClick={() => setCurrentView("players")}
+              onClick={() => setCurrentView("captains")}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
-                currentView === "players"
+                currentView === "captains"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
             >
-              👤 Players
+              🎖️ Captains
+            </button>
+            <button
+              onClick={() => setCurrentView("deptplayers")}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold transition text-xs sm:text-sm whitespace-nowrap ${
+                currentView === "deptplayers"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+            >
+              👤 Dept Players
             </button>
             <button
               onClick={() => setCurrentView("approvals")}
@@ -278,7 +293,7 @@ export default function AdminPage() {
                 <StatCard
                   icon="👥"
                   count={stats.players.toString()}
-                  label="Total Players"
+                  label="Captains + Players"
                   color="bg-red-800"
                 />
                 <StatCard
@@ -312,10 +327,10 @@ export default function AdminPage() {
                   🛡️ <span className="hidden sm:inline">Add</span> Team
                 </button>
                 <button
-                  onClick={() => setShowAddPlayer(true)}
+                  onClick={() => setCurrentView("captains")}
                   className="px-3 sm:px-6 py-2 sm:py-3 bg-orange-700 text-white rounded-lg font-semibold hover:bg-orange-800 flex items-center gap-1 sm:gap-2 transition text-xs sm:text-base"
                 >
-                  👤 <span className="hidden sm:inline">Add</span> Player
+                  🎖️ <span className="hidden sm:inline">View</span> Captains
                 </button>
                 <button
                   onClick={() => setShowAddAnnouncement(true)}
@@ -375,27 +390,30 @@ export default function AdminPage() {
           </div>
         )}
 
-        {currentView === "players" && (
+        {currentView === "captains" && (
           <div className="px-4 sm:px-8 py-4 sm:py-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Manage Players</h2>
-              <button
-                onClick={() => setShowAddPlayer(true)}
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-orange-700 text-white rounded-lg font-semibold hover:bg-orange-800 transition text-sm sm:text-base w-full sm:w-auto"
-              >
-                👤 Add Player
-              </button>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Manage Captains</h2>
             </div>
-            <ManagePlayers refreshKey={refreshKey} />
+            <ManageCaptains refreshKey={refreshKey} />
+          </div>
+        )}
+
+        {currentView === "deptplayers" && (
+          <div className="px-4 sm:px-8 py-4 sm:py-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Manage Department Players</h2>
+            </div>
+            <ManageDepartmentPlayers refreshKey={refreshKey} />
           </div>
         )}
 
         {currentView === "approvals" && (
           <div className="px-4 sm:px-8 py-4 sm:py-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Player Approvals & Verification</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Captain & Player Approvals</h2>
             </div>
-            <PlayerApprovals refreshKey={refreshKey} />
+            <CaptainApprovals refreshKey={refreshKey} />
           </div>
         )}
 
@@ -501,11 +519,6 @@ export default function AdminPage() {
         isOpen={showAddTeam}
         onClose={() => setShowAddTeam(false)}
         onTeamAdded={handleMatchAdded}
-      />
-      <AddPlayerModal
-        isOpen={showAddPlayer}
-        onClose={() => setShowAddPlayer(false)}
-        onPlayerAdded={handleMatchAdded}
       />
       <AddScheduleModal
         isOpen={showAddSchedule}

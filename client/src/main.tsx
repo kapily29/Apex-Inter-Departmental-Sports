@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
 import { AdminProvider } from "./context/AdminContext";
-import { PlayerProvider } from "./context/PlayerContext";
+import { CaptainProvider } from "./context/CaptainContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import "./index.css";
 
@@ -12,11 +12,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <AdminProvider>
-        <PlayerProvider>
+        <CaptainProvider>
           <NotificationProvider>
             <App />
           </NotificationProvider>
-        </PlayerProvider>
+        </CaptainProvider>
       </AdminProvider>
     </BrowserRouter>
   </React.StrictMode>

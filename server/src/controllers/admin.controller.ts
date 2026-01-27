@@ -2,6 +2,8 @@ import { Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Admin } from "../models/Admin";
+import { Captain } from "../models/Captain";
+import { DepartmentPlayer } from "../models/DepartmentPlayer";
 import { AuthRequest } from "../middlewares/auth";
 
 export const adminSignup = async (req: AuthRequest, res: Response) => {
@@ -114,5 +116,177 @@ export const updateAdminProfile = async (req: AuthRequest, res: Response) => {
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Internal server error" });
+  }
+};
+
+// ============ Captain Management ============
+
+// Get all captains
+export const getAllCaptains = async (req: AuthRequest, res: Response) => {
+  try {
+    const { status } = req.query;
+    const filter: any = {};
+    if (status) filter.status = status;
+
+    const captains = await Captain.find(filter).select("-password").sort({ createdAt: -1 });
+    res.status(200).json({ captains });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update captain status
+export const updateCaptainStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["active", "inactive", "pending", "approved", "rejected"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const captain = await Captain.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).select("-password");
+
+    if (!captain) {
+      return res.status(404).json({ error: "Captain not found" });
+    }
+
+    res.status(200).json({ message: "Captain status updated", captain });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update captain details
+export const updateCaptain = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, bloodGroup, status } = req.body;
+
+    const updates: any = {};
+    if (name) updates.name = name;
+    if (phone) updates.phone = phone;
+    if (bloodGroup) updates.bloodGroup = bloodGroup;
+    if (status) updates.status = status;
+
+    const captain = await Captain.findByIdAndUpdate(id, updates, { new: true }).select("-password");
+
+    if (!captain) {
+      return res.status(404).json({ error: "Captain not found" });
+    }
+
+    res.status(200).json({ message: "Captain updated successfully", captain });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete captain
+export const deleteCaptain = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Also delete all players added by this captain
+    await DepartmentPlayer.deleteMany({ captain: id });
+
+    const captain = await Captain.findByIdAndDelete(id);
+    if (!captain) {
+      return res.status(404).json({ error: "Captain not found" });
+    }
+
+    res.status(200).json({ message: "Captain and associated players deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ============ Department Player Management ============
+
+// Get all department players
+export const getAllDepartmentPlayers = async (req: AuthRequest, res: Response) => {
+  try {
+    const { status, department, sport } = req.query;
+    const filter: any = {};
+    if (status) filter.status = status;
+    if (department) filter.department = department;
+    if (sport) filter.sport = sport;
+
+    const players = await DepartmentPlayer.find(filter)
+      .populate("captain", "name email department")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ players });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update department player status
+export const updateDepartmentPlayerStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["active", "inactive", "pending", "approved", "rejected"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const player = await DepartmentPlayer.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).populate("captain", "name email department");
+
+    if (!player) {
+      return res.status(404).json({ error: "Player not found" });
+    }
+
+    res.status(200).json({ message: "Player status updated", player });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update department player details
+export const updateDepartmentPlayer = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, email, status } = req.body;
+
+    const updates: any = {};
+    if (name) updates.name = name;
+    if (phone) updates.phone = phone;
+    if (email) updates.email = email;
+    if (status) updates.status = status;
+
+    const player = await DepartmentPlayer.findByIdAndUpdate(id, updates, { new: true })
+      .populate("captain", "name email department");
+
+    if (!player) {
+      return res.status(404).json({ error: "Player not found" });
+    }
+
+    res.status(200).json({ message: "Player updated successfully", player });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete department player
+export const deleteDepartmentPlayer = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const player = await DepartmentPlayer.findByIdAndDelete(id);
+    if (!player) {
+      return res.status(404).json({ error: "Player not found" });
+    }
+
+    res.status(200).json({ message: "Player deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 };

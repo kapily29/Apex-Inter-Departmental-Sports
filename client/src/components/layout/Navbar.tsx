@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import Button from "../ui/Button";
 import { useAdmin } from "../../context/AdminContext";
-import { usePlayer } from "../../context/PlayerContext";
+import { useCaptain } from "../../context/CaptainContext";
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `hover:text-slate-900 ${
@@ -12,7 +12,7 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 
 export default function Navbar() {
   const { isAuthenticated: isAdminAuth, logout: adminLogout, admin } = useAdmin();
-  const { isAuthenticated: isPlayerAuth, logout: playerLogout, player } = usePlayer();
+  const { isAuthenticated: isCaptainAuth, logout: captainLogout, captain } = useCaptain();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -73,8 +73,8 @@ export default function Navbar() {
               </NavLink>
             )}
 
-            {isPlayerAuth && (
-              <NavLink className={navClass} to="/player-dashboard">
+            {isCaptainAuth && (
+              <NavLink className={navClass} to="/captain-dashboard">
                 My Dashboard
               </NavLink>
             )}
@@ -94,13 +94,13 @@ export default function Navbar() {
                   Logout
                 </button>
               </div>
-            ) : isPlayerAuth ? (
+            ) : isCaptainAuth ? (
               <div className="hidden sm:flex items-center gap-3">
                 <span className="text-sm font-semibold text-emerald-700">
-                  ⚽ {player?.name}
+                  🎖️ {captain?.name}
                 </span>
                 <button
-                  onClick={playerLogout}
+                  onClick={captainLogout}
                   className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-700 transition-colors"
                 >
                   Logout
@@ -109,7 +109,7 @@ export default function Navbar() {
             ) : (
               <div className="hidden sm:flex items-center gap-2 sm:gap-3">
                 <Button
-                  to="/player-register"
+                  to="/captain-register"
                   fullWidth={false}
                   variant="secondary"
                   className="text-xs sm:text-sm px-3 sm:px-4"
@@ -118,12 +118,12 @@ export default function Navbar() {
                 </Button>
 
                 <Button
-                  to="/player-login"
+                  to="/captain-login"
                   fullWidth={false}
                   variant="primary"
                   className="text-xs sm:text-sm px-3 sm:px-4"
                 >
-                  Player Login
+                  Captain Login
                 </Button>
 
                 <Button
@@ -227,13 +227,13 @@ export default function Navbar() {
               </NavLink>
             )}
 
-            {isPlayerAuth && (
+            {isCaptainAuth && (
               <NavLink 
                 className={({ isActive }) => `px-4 py-3 rounded-lg font-medium ${isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-700 hover:bg-slate-50"}`}
-                to="/player-dashboard"
+                to="/captain-dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                ⚽ My Dashboard
+                🎖️ My Dashboard
               </NavLink>
             )}
 
@@ -249,31 +249,31 @@ export default function Navbar() {
               >
                 Logout ({admin?.username})
               </button>
-            ) : isPlayerAuth ? (
+            ) : isCaptainAuth ? (
               <button
                 onClick={() => {
-                  playerLogout();
+                  captainLogout();
                   setIsMobileMenuOpen(false);
                 }}
                 className="px-4 py-3 bg-red-600 text-white rounded-lg font-semibold text-center"
               >
-                Logout ({player?.name})
+                Logout ({captain?.name})
               </button>
             ) : (
               <div className="flex flex-col gap-2">
                 <NavLink
-                  to="/player-register"
+                  to="/captain-register"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-3 bg-emerald-600 text-white rounded-lg font-semibold text-center"
                 >
-                  ⚽ Player Register
+                  🎖️ Captain Register
                 </NavLink>
                 <NavLink
-                  to="/player-login"
+                  to="/captain-login"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="px-4 py-3 bg-teal-600 text-white rounded-lg font-semibold text-center"
                 >
-                  ⚽ Player Login
+                  🎖️ Captain Login
                 </NavLink>
                 <NavLink
                   to="/admin-login"
